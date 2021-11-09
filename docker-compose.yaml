@@ -16,6 +16,13 @@ services:
       REDIS_RETRY: -1
       REDIS_IDLE_TIMEOUT: -1
     image: zufardhiyaulhaq/echo-redis:49dc0e6
+  echo-redis-tcpdump:
+    network_mode: service:echo-redis
+    restart: always
+    image: nicolaka/netshoot
+    volumes:
+      - ./network_dump:/tmp/network_dump/
+    command: tcpdump -i eth0 port 80 or port 6379 -w /tmp/network_dump/echo-redis.pcapng
   envoy:
     build: .
     expose:
@@ -26,6 +33,13 @@ services:
     restart: always
     volumes:
       - ./config.yaml:/etc/config.yaml
+  envoy-tcpdump:
+    network_mode: service:envoy
+    restart: always
+    image: nicolaka/netshoot
+    volumes:
+      - ./network_dump:/tmp/network_dump/
+    command: tcpdump -i eth0 port 6379 -w /tmp/network_dump/envoy.pcapng
   redis:
     expose:
       - "6379"
@@ -34,6 +48,13 @@ services:
         ipv4_address: 172.18.0.4
     restart: always
     image: redis:latest
+  redis-tcpdump:
+    network_mode: service:redis
+    restart: always
+    image: nicolaka/netshoot
+    volumes:
+      - ./network_dump:/tmp/network_dump/
+    command: tcpdump -i eth0 port 6379 -w /tmp/network_dump/redis.pcapng
 networks:
   envoy-tcp-proxy:
     driver: bridge
