@@ -1,4 +1,4 @@
-FROM envoyproxy/envoy:v1.16.3
+FROM envoyproxy/envoy:v1.20.0
 
 LABEL maintainer="Zufar Dhiyaulhaq"
 
