@@ -1,0 +1,43 @@
+version: "2"
+services:
+  echo-redis:
+    expose:
+      - "80"
+      - "5000"
+    networks:
+      envoy-tcp-proxy:
+        ipv4_address: 172.18.0.2
+    restart: always
+    environment:
+      ECHO_PORT: 5000
+      HTTP_PORT: 80
+      REDIS_CLUSTER: "false"
+      REDIS_HOST: 172.18.0.3:6379
+      REDIS_RETRY: -1
+      REDIS_IDLE_TIMEOUT: -1
+    image: zufardhiyaulhaq/echo-redis:49dc0e6
+  envoy:
+    build: .
+    expose:
+      - "6379"
+    networks:
+      envoy-tcp-proxy:
+        ipv4_address: 172.18.0.3
+    restart: always
+    volumes:
+      - ./config.yaml:/etc/config.yaml
+  redis:
+    expose:
+      - "6379"
+    networks:
+      envoy-tcp-proxy:
+        ipv4_address: 172.18.0.4
+    restart: always
+    image: redis:latest
+networks:
+  envoy-tcp-proxy:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 172.18.0.0/16
+         gateway: 172.18.0.1
